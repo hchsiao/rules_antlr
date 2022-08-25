@@ -1,5 +1,6 @@
 """Loads ANTLR dependencies."""
 
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_jar")
 load(":lang.bzl", "C", "CPP", "GO", "JAVA", "OBJC", "PYTHON", "PYTHON2", "PYTHON3", supportedLanguages = "supported")
 
@@ -189,6 +190,23 @@ def rules_antlr_dependencies(*versionsAndLanguages):
                 _antlr352_dependencies(languages)
             elif version == 2 or version == "2.7.7":
                 _antlr277_dependencies(languages)
+
+        maybe(
+            http_archive,
+            name = "bazel_skylib",
+            urls = [
+                "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
+                "https://github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
+            ],
+            sha256 = "f7be3474d42aae265405a592bb7da8e171919d74c16f082a5457840f06054728",
+        )
+        maybe(
+            http_archive,
+            name = "rules_python",
+            sha256 = "c03246c11efd49266e8e41e12931090b613e12a59e6f55ba2efd29a7cb8b4258",
+            strip_prefix = "rules_python-0.11.0",
+            url = "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.11.0.tar.gz",
+        )
     else:
         fail("Missing ANTLR version", attr = "versionsAndLanguages")
 

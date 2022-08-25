@@ -57,6 +57,8 @@ def _args(ctx, output_dir):
 
     if ctx.attr.no_visitor:
         args.add("-no-visitor")
+    else:
+        args.add("-visitor")
 
     args.add("-o")
     args.add(output_dir)
@@ -105,6 +107,7 @@ you need to use a different version, you can specify the dependencies here.
         "no_visitor": attr.bool(default = True, doc = "Do not generate parse tree visitor."),
         "options": attr.string_dict(doc = "Set/override grammar-level options."),
         "package": attr.string(doc = "The package/namespace for the generated code."),
+        "py_import_prefix": attr.string_list(doc = "The prefix to be added to the python import path"),
         "srcs": attr.label_list(allow_files = True, mandatory = True, doc = "The grammar files to process."),
         "visitor": attr.bool(default = False, doc = "Generate parse tree visitor."),
         "_tool": attr.label(

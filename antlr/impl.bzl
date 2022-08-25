@@ -1,5 +1,6 @@
 """The common ANTLR rule implementation."""
 
+load("@bazel_skylib//lib:paths.bzl", "paths")
 load(":lang.bzl", "C", "CPP", "GO", "OBJC", "PYTHON", "PYTHON2", "PYTHON3")
 
 AntlrInfo = provider(
@@ -32,6 +33,7 @@ def antlr(version, ctx, args):
     sources = []
     headers = []
     cc = ctx.attr.language == CPP or ctx.attr.language == C or ctx.attr.language == OBJC
+    py = ctx.attr.language == PYTHON2 or ctx.attr.language == PYTHON3
     output_type = "dir" if ctx.attr.language and ctx.attr.language != "Java" else "srcjar"
 
     if output_type == "srcjar":
@@ -39,6 +41,27 @@ def antlr(version, ctx, args):
         srcjar = ctx.actions.declare_file(ctx.attr.name + "." + output_type)
         output_dir = ctx.configuration.bin_dir.path + "/rules_antlr"
         outputs = [srcjar]
+    elif py:
+        import_prefix = ctx.attr.py_import_prefix
+        output_dir = paths.join(ctx.configuration.bin_dir.path, *import_prefix)
+        output_names = [src.basename.removesuffix(".%s" % src.extension) for src in ctx.files.srcs]
+        lexers = [
+            ctx.actions.declare_file(paths.join(*(import_prefix + [unit + "Lexer.py"])))
+            for unit in output_names
+        ]
+        parsers = [
+            ctx.actions.declare_file(paths.join(*(import_prefix + [unit + "Parser.py"])))
+            for unit in output_names
+        ]
+        listeners = [
+            ctx.actions.declare_file(paths.join(*(import_prefix + [unit + "Listener.py"])))
+            for unit in output_names
+        ]
+        visitors = [
+            ctx.actions.declare_file(paths.join(*(import_prefix + [unit + "Visitor.py"])))
+            for unit in output_names if not ctx.attr.no_visitor
+        ]
+        outputs = lexers + parsers + listeners + visitors
     else:
         # for all other languages we use directories
         sources = ctx.actions.declare_directory(ctx.attr.name + extension(ctx.attr.language))
