@@ -351,7 +351,7 @@ go_library(
         script += _load_rules_python_defs(script) + """
 py_library(
     name = "python2",
-    srcs = glob(["runtime/Python3/src/*.py"]),
+    srcs = glob(["runtime/Python3/src/**/*.py"]),
     imports = ["runtime/Python3/src"],
     visibility = ["//visibility:public"],
 )
@@ -362,13 +362,14 @@ py_library(
         script += _load_rules_python_defs(script) + """
 py_library(
     name = "python",
-    srcs = glob(["runtime/Python3/src/*.py"]),
+    srcs = glob(["runtime/Python3/src/**/*.py"]),
     imports = ["runtime/Python3/src"],
     visibility = ["//visibility:public"],
 )
 alias(
     name = "python3",
     actual = ":python",
+    visibility = ["//visibility:public"],
 )
 """
 
