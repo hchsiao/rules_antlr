@@ -43,12 +43,15 @@ def antlr(version, ctx, args):
         outputs = [srcjar]
     elif py:
         import_prefix = ctx.attr.py_import_prefix
-        output_dir = paths.join(ctx.configuration.bin_dir.path, *import_prefix)
         output_names = [src.basename.removesuffix(".%s" % src.extension) for src in ctx.files.srcs]
         lexers = [
             ctx.actions.declare_file(paths.join(*(import_prefix + [unit + "Lexer.py"])))
             for unit in output_names
         ]
+        # "external/pssparser" or ""
+        ext_path = lexers[0].path.removeprefix(ctx.bin_dir.path).removesuffix(paths.join(*(import_prefix + [output_names[0] + "Lexer.py"])))
+        # TODO: find better way to specify output_dir
+        output_dir = paths.join(ctx.configuration.bin_dir.path, *(ext_path.split('/') + import_prefix))
         parsers = [
             ctx.actions.declare_file(paths.join(*(import_prefix + [unit + "Parser.py"])))
             for unit in output_names
